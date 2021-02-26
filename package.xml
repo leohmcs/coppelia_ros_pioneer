@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>coppelia_ros_pioneer</name>
+  <version>0.0.0</version>
+  <description>Package to control Pioneer_p3dx on CoppeliaSim</description>
+
+  <maintainer email="leohmcs@gmail.com">Leonardo Hemerly</maintainer>
+
+
+  <license>BSD</license>
+
+
+  <!-- <url type="website">http://wiki.ros.org/verlab_pioneer</url> -->
+
+
+  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+
+  <build_depend>rospy</build_depend>
+
+
+</package>
