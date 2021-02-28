@@ -7,8 +7,8 @@ from geometry_msgs.msg import Twist
 class Move():
     def __init__(self):
         # raio da roda e distancia entre as rodas do robo
-        self.w_radius = 0.0975
-        self.w_base = 0.381
+        self.w_radius = 1.9502e-1
+        self.w_base = 4.1500e-1
 
         # publishers que passam as velocidades de cada roda para o robo
         self.right_motor_pub = rospy.Publisher('/rightMotorSpeed_p3dx', Float32, queue_size=1)
