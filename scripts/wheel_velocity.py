@@ -7,8 +7,8 @@ from geometry_msgs.msg import Twist
 class Move():
     def __init__(self):
         # raio da roda e distancia entre as rodas do robo
-        self.w_radius = 1.9502e-1
-        self.w_base = 4.1500e-1
+        self.w_radius = 0.975
+        self.w_base = 4.1500
 
         # publishers que passam as velocidades de cada roda para o robo
         self.right_motor_pub = rospy.Publisher('/rightMotorSpeed_p3dx', Float32, queue_size=1)
@@ -18,6 +18,7 @@ class Move():
         self.vel_sub = rospy.Subscriber("cmd_vel", Twist, self.vel_callback)
 
         self.vel = Twist()
+
 
     # mover o robo quando o input do teclado for recebido do teleop
     def vel_callback(self, data):
@@ -40,12 +41,16 @@ class Move():
     # calcular velocidade da roda esquerda
     def left_vel(self, v, w):
         return (2*v - w*self.w_base) / (2*self.w_radius)
-        
 
 
-if __name__ == '__main__':
-    m = Move()
 
-    rospy.init_node('move', anonymous=False)
-    rospy.loginfo('Node initialization')
+rospy.init_node('move', anonymous=False)
+rospy.loginfo('Move node initialization')
+
+move = Move()
+
+rate = rospy.Rate(10)
+
+while not rospy.is_shutdown():
     rospy.spin()
+    rate.sleep()
