@@ -1,0 +1,4 @@
+<launch>
+	<node name="wheel_vel" pkg="coppelia_ros_pioneer" type="wheel_velocity.py" respawn="true" output="screen" />
+	<node name="odom" pkg="coppelia_ros_pioneer" type="odometry.py" respawn="true" output="screen" />
+</launch>
