@@ -3,6 +3,9 @@
 import math
 from math import sin, cos, pi
 
+# import os
+# os.environ["ROS_NAMESPACES"] = "/coppelia_ros_pioneer"
+
 import rospy
 import tf
 from nav_msgs.msg import Odometry
@@ -12,7 +15,7 @@ from std_msgs.msg import Float32
 
 class Robot_Odom:
     def __init__(self):
-        self.w_radius = 0.975
+        self.w_radius = 0.0975
 
         # assumindo que o robo inicia parado na origem
         self.r_wheel_vel = 0.0
@@ -101,11 +104,11 @@ class Robot_Odom:
 
 
 rospy.init_node('odometry_publisher')
-rospy.loginfo("Odometry node initialization") 
+rospy.loginfo("odometry_publisher node initialization") 
 
 odom = Robot_Odom()
 
-rate = rospy.Rate(1.0)  # calcula e publica odometria a cada segundo
+rate = rospy.Rate(10.0)  # calcula e publica odometria a cada segundo
 while not rospy.is_shutdown():
     odom.pose()
     rate.sleep()

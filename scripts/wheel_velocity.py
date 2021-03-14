@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# import os
+# os.environ["ROS_NAMESPACE"] = "/coppelia_ros_pioneer"
 
 import rospy
 from std_msgs.msg import Float32
@@ -7,8 +9,8 @@ from geometry_msgs.msg import Twist
 class Move():
     def __init__(self):
         # raio da roda e distancia entre as rodas do robo
-        self.w_radius = 0.975
-        self.w_base = 4.1500
+        self.w_radius = 0.0975
+        self.w_base = 0.381
 
         # publishers que passam as velocidades de cada roda para o robo
         self.right_motor_pub = rospy.Publisher('/rightMotorSpeed_p3dx', Float32, queue_size=1)
@@ -28,10 +30,11 @@ class Move():
         vel_angular = self.vel.angular.z
 
         right_velocity = self.right_vel(vel_linear, vel_angular)
-        left_vel = self.left_vel(vel_linear, vel_angular)
+        left_velocity = self.left_vel(vel_linear, vel_angular)
+        # rospy.loginfo("%s %s", right_velocity, left_velocity)
 
+        self.left_motor_pub.publish(left_velocity)
         self.right_motor_pub.publish(right_velocity)
-        self.left_motor_pub.publish(left_vel)
 
 
     # calcular velocidade da roda direita
@@ -45,12 +48,8 @@ class Move():
 
 
 rospy.init_node('move', anonymous=False)
-rospy.loginfo('Move node initialization')
+rospy.loginfo('move node initialization')
 
 move = Move()
 
-rate = rospy.Rate(10)
-
-while not rospy.is_shutdown():
-    rospy.spin()
-    rate.sleep()
+rospy.spin()
