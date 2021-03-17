@@ -16,6 +16,7 @@ from std_msgs.msg import Float32
 class Robot_Odom:
     def __init__(self):
         self.w_radius = 0.0975
+        self.w_base = 0.381
 
         # assumindo que o robo inicia parado na origem
         self.r_wheel_vel = 0.0
@@ -58,8 +59,8 @@ class Robot_Odom:
         delta_t = (self.current_time - self.last_time).to_sec()
 
         # calcula velocidade linear e angular a partir das velocidades das duas rodas
-        self.vel_linear = (self.r_wheel_vel + self.l_wheel_vel) / 2
-        self.vel_angular = (self.r_wheel_vel - self.l_wheel_vel) / (2 * self.w_radius)
+        self.vel_linear = (self.r_wheel_vel + self.l_wheel_vel) * self.w_radius / 2
+        self.vel_angular = (self.r_wheel_vel - self.l_wheel_vel) * self.w_radius / self.w_base
 
         # calcula a distancia percorrida e o angulo girado
         self.delta_s = self.vel_linear * delta_t
@@ -87,19 +88,15 @@ class Robot_Odom:
             "odom"
         )
 
-        # criando a mensagem a ser publicada
         odom = Odometry()
         odom.header.stamp = self.current_time
         odom.header.frame_id = "odom"
 
-        # set the position
         odom.pose.pose = Pose(Point(self.x, self.y, 0.), Quaternion(*odom_quat))
 
-        # set the velocity
         odom.child_frame_id = "base_link"
         odom.twist.twist = Twist(Vector3(self.vel_linear, 0, 0), Vector3(0, 0, self.vel_angular))
 
-        # publish the message
         self.odom_pub.publish(odom)
 
 
@@ -108,7 +105,7 @@ rospy.loginfo("odometry_publisher node initialization")
 
 odom = Robot_Odom()
 
-rate = rospy.Rate(10.0)  # calcula e publica odometria a cada segundo
+rate = rospy.Rate(10.0)
 while not rospy.is_shutdown():
     odom.pose()
     rate.sleep()
