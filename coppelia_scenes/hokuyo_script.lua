@@ -123,7 +123,7 @@ function sysCall_sensing()
                 points[3*ind+1]=0
                 points[3*ind+2]=0
                 points[3*ind+3]=0
-                ranges[ind+1]=math.sqrt(ptRelative[1]*ptRelative[1] + ptRelative[2]*ptRelative[2])
+                ranges[ind+1]=0
                 segments[7*ind+7]=0 -- indicates an invalid point
             end
             segments[7*ind+1]=laserOrigin[1]
@@ -242,7 +242,7 @@ function sysCall_actuation()
             time_increment = (1 / 50) / 1081,
             scan_time=scan_time,
             range_min = 0,
-            range_max = 20,
+            range_max = 6,
             ranges = ranges,
             intensities = {}
         }

@@ -1,4 +1,7 @@
 function sysCall_init()
+    previousLeftVel = 0.0
+    previousRightvel=0.0
+    
     robotHandle=sim.getObjectAssociatedWithScript(sim.handle_self)
 
     motorLeft=sim.getObjectHandle("Pioneer_p3dx_leftMotor")
@@ -34,14 +37,20 @@ end
 
 function setLeftMotorVelocity_cb(msg)
     -- Left motor speed subscriber callback
-    sim.setJointTargetVelocity(motorLeft, msg.data)
-    print("Left: "..msg.data.." at "..simROS.getTime())
+    if msg.data ~= previousLeftVel then
+        sim.setJointTargetVelocity(motorLeft, msg.data)
+        print("Left: "..msg.data.." at "..simROS.getTime())
+        previousLeftVel = msg.data
+    end
 end
 
 function setRightMotorVelocity_cb(msg)
     -- Right motor speed subscriber callback
-    sim.setJointTargetVelocity(motorRight, msg.data)
-    print("Right: "..msg.data.." at "..simROS.getTime())
+    if msg.data ~= previousRightVel then
+        sim.setJointTargetVelocity(motorRight, msg.data)
+        print("Right: "..msg.data.." at "..simROS.getTime())
+        previousRightVel = msg.data
+    end
 end
 
 
