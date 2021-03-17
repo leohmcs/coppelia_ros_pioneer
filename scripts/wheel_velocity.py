@@ -21,6 +21,9 @@ class Move():
 
         self.vel = Twist()
 
+        self.right_velocity = 0
+        self.left_velocity = 0
+
 
     # mover o robo quando o input do teclado for recebido do teleop
     def vel_callback(self, data):
@@ -29,12 +32,9 @@ class Move():
         vel_linear = self.vel.linear.x
         vel_angular = self.vel.angular.z
 
-        right_velocity = self.right_vel(vel_linear, vel_angular)
-        left_velocity = self.left_vel(vel_linear, vel_angular)
+        self.right_velocity = self.right_vel(vel_linear, vel_angular)
+        self.left_velocity = self.left_vel(vel_linear, vel_angular)
         # rospy.loginfo("%s %s", right_velocity, left_velocity)
-
-        self.left_motor_pub.publish(left_velocity)
-        self.right_motor_pub.publish(right_velocity)
 
 
     # calcular velocidade da roda direita
@@ -45,6 +45,9 @@ class Move():
     def left_vel(self, v, w):
         return (2*v - w*self.w_base) / (2*self.w_radius)
 
+    def publish(self):
+        self.left_motor_pub.publish(self.left_velocity)
+        self.right_motor_pub.publish(self.right_velocity)
 
 
 rospy.init_node('move', anonymous=False)
@@ -52,4 +55,7 @@ rospy.loginfo('move node initialization')
 
 move = Move()
 
-rospy.spin()
+rate = rospy.Rate(10.0)
+while not rospy.is_shutdown():
+    move.publish()
+    rate.sleep()
