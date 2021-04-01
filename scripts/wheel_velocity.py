@@ -10,7 +10,7 @@ class Move():
     def __init__(self):
         # raio da roda e distancia entre as rodas do robo
         self.w_radius = 0.0975
-        self.w_base = 0.381
+        self.w_base = 0.4150
 
         # publishers que passam as velocidades de cada roda para o robo
         self.right_motor_pub = rospy.Publisher('/rightMotorSpeed_p3dx', Float32, queue_size=1)
@@ -34,16 +34,17 @@ class Move():
 
         self.right_velocity = self.right_vel(vel_linear, vel_angular)
         self.left_velocity = self.left_vel(vel_linear, vel_angular)
-        # rospy.loginfo("%s %s", right_velocity, left_velocity)
 
 
     # calcular velocidade da roda direita
     def right_vel(self, v, w):
         return (2*v + w*self.w_base) / (2*self.w_radius)
 
+
     # calcular velocidade da roda esquerda
     def left_vel(self, v, w):
         return (2*v - w*self.w_base) / (2*self.w_radius)
+
 
     def publish(self):
         self.left_motor_pub.publish(self.left_velocity)
