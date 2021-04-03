@@ -13,8 +13,8 @@ class Move():
         self.w_base = 0.4150
 
         # publishers que passam as velocidades de cada roda para o robo
-        self.right_motor_pub = rospy.Publisher('/rightMotorSpeed_p3dx', Float32, queue_size=1)
-        self.left_motor_pub = rospy.Publisher('/leftMotorSpeed_p3dx', Float32, queue_size=1)
+        self.right_motor_pub = rospy.Publisher('/pioneer/right_wheel_velocity', Float32, queue_size=1)
+        self.left_motor_pub = rospy.Publisher('/pioneer/left_wheel_velocity', Float32, queue_size=1)
 
         # subscriber para receber o input do teclado
         self.vel_sub = rospy.Subscriber("cmd_vel", Twist, self.vel_callback)
