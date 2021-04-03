@@ -1,4 +1,6 @@
 # coppelia_ros_pioneer
+Tested on Ubuntu 18.04 and Coppelia 4.1.0.
+
 ## To run
 Clone and build the repository in your workspace
 ```
