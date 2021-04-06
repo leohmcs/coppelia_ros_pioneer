@@ -13,6 +13,12 @@ Launch the odometry and wheel_velocity nodes
 ```
 roslaunch coppelia_ros_pioneer pioneer.launch
 ```
+This will run odometry.py, which calculates odometry based on wheel encoder, wheel_velocity.py, which calculates each wheel velocity based on Twist messages received from /cmd_vel (published by teleop node), and static_transform_publisher node to calculate base_link -> imu transform.
+
+```
+roslaunch coppelia_ros_pioneer odom_ekf.launch
+```
+This will setup and run [robot_localization](http://wiki.ros.org/robot_localization)'s ekf_localization_node to fuse imu and wheel encoder odometry data to improve odometry precision. This node also publishes odom -> base_link tf.
 
 Run teleop to move the robot using your keyboard. The source code can be found at [https://github.com/ros-teleop/teleop_twist_keyboard](#)
 ```
