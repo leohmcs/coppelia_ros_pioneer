@@ -2,4 +2,9 @@
 	<node name="wheel_vel" pkg="coppelia_ros_pioneer" type="wheel_velocity.py" respawn="true" output="screen" />
 	<node name="odom" pkg="coppelia_ros_pioneer" type="odometry.py" respawn="true" output="screen" />
 	<node pkg="tf" type="static_transform_publisher" name="imu_to_robot_base" args="0 0 0 0 0 0 base_link imu_link 100" />
+	
+	<node pkg="point_cloud_converter" type="point_cloud_converter_node" name="point_cloud_converter" respawn="true" output="screen">
+		<remap from="points_in" to="/pcl" />
+		<remap from="points2_out" to="/pcl2" />
+	</node>
 </launch>
