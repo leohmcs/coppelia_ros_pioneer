@@ -70,12 +70,9 @@ class Robot_Odom:
 
     # calcula a posicao atual do robo
     def pose(self):
-        # calcula o intervalo de tempo
         self.current_time = self.right_joint_state.header.stamp
-        delta_t = (self.current_time - self.last_time).to_sec()
-        # rospy.loginfo("%s", delta_t)
 
-        # rospy.loginfo("%s", self.right_joint_state.velocity)
+        delta_t = (self.current_time - self.last_time).to_sec()
 
         # calcula velocidade linear e angular a partir das velocidades das duas rodas
         self.vel_linear = (self.r_wheel_vel[0] + self.l_wheel_vel[0]) * self.w_radius / 2
@@ -163,7 +160,7 @@ class Robot_Odom:
         # )
 
         odom = Odometry()
-        odom.header.stamp = self.current_time
+        odom.header.stamp = rospy.Time.now()
         odom.header.frame_id = "odom"
 
         odom.pose.pose = Pose(Point(self.x, self.y, 0.), Quaternion(*odom_quat))
