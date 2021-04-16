@@ -64,23 +64,24 @@ class PlotOdom():
 
 
     # plots robot's pose over time
-    def plot_pose(self, enc_pose, filter_pose, sim_pose):
+    def plot_pose(self, enc_pose, filter_pose, sim_pose, axs, i):
         if enc_pose:
-            plt.plot(self.odom_x, self.odom_y, "b--", label="Encoder Odom")
+            axs[i].plot(self.odom_x, self.odom_y, "b--", label="Encoder Pose")
         
         if filter_pose:
-            plt.plot(self.odom_filtered_x, self.odom_filtered_y, "r-", label="Filtered Odom")
+            axs[i].plot(self.odom_filtered_x, self.odom_filtered_y, "r-", label="Filtered Pose")
         
         if sim_pose:
-            plt.plot(self.odom_sim_x, self.odom_sim_y, "g-", label="Real Position")
+            axs[i].plot(self.odom_sim_x, self.odom_sim_y, "g-", label="True Pose")
         
-        plt.legend()
-        plt.show()
+        axs[i].legend()
+        axs[i].set_xlabel("Meters")
+        axs[i].set_ylabel("Meters")
+        axs[i].set_title("Pose")
 
 
     # plot euclidean distance between points from different pose sources
-    # TODO: melhore essa funcao
-    def plot_euclidean(self, accumulated, enc_sim, enc_filter, filter_sim):
+    def plot_euclidean(self, accumulated, enc_sim, enc_filter, filter_sim, axs, i):
         odom_sim_x = np.array([])
         odom_sim_y = np.array([])
         
@@ -90,18 +91,28 @@ class PlotOdom():
 
         if enc_sim:
             dist_enc_sim = self.calc_dist(accumulated, self.odom_x, self.odom_y, odom_sim_x, odom_sim_y)
-            plt.plot(dist_enc_sim, "b--", label="Encoder vs Real")
+            axs[i].plot(dist_enc_sim, "b--", label="Encoder vs Real")
+            axs[i].set_xlabel("Number of Points Received")
+            axs[i].set_ylabel("Distance (m)")
 
         if enc_filter:
             dist_enc_filter = self.calc_dist(accumulated, self.odom_x, self.odom_y, self.odom_filtered_x, self.odom_filtered_y)
-            plt.plot(dist_enc_filter, "r-", label="Encoder vs Filter")
-        
-        if filter_sim:
-            dist_filter_sim = self.calc_dist(accumulated, self.odom_filtered_x, self.odom_filtered_y, self.odom_sim_x, self.odom_sim_y)
-            plt.plot(dist_filter_sim, "g-", label="Filter vs Real")
+            axs[i].plot(dist_enc_filter, "r-", label="Encoder vs Filter")
+            axs[i].set_xlabel("Number of Points Received")
+            axs[i].set_ylabel("Distance (m)")
 
-        plt.legend()
-        plt.show()
+        if filter_sim:
+            dist_filter_sim = self.calc_dist(accumulated, self.odom_filtered_x, self.odom_filtered_y, odom_sim_x, odom_sim_y)
+            axs[i].plot(dist_filter_sim, "g-", label="Filter vs Real")
+            axs[i].set_xlabel("Number of Points Received")
+            axs[i].set_ylabel("Distance (m)")
+
+        axs[i].legend()
+        
+        if accumulated:
+            axs[i].set_title("Accumulated Distance")
+        else:
+            axs[i].set_title("Distance")
 
 
     def calc_dist(self, accumulated, x1, y1, x2, y2):
@@ -109,8 +120,6 @@ class PlotOdom():
         for i in range(min(len(x1), len(x2))):
             a = np.array([x1[i], y1[i]])
             b = np.array([x2[i], y2[i]])
-
-            print(a, b)
 
             dist = np.linalg.norm(a - b)
             if accumulated:
@@ -146,17 +155,31 @@ plotOdom = PlotOdom()
 
 rospy.spin()
 
-print(len(plotOdom.odom_x), len(plotOdom.odom_filtered_x), len(plotOdom.odom_sim_x), len(plotOdom.odom_sim_indices))
 # plot data
+n = 3
+
+if not args.pose:
+    n -= 1
+    
+if not args.accdist:
+    n -=1
+    
+if not args.dist:
+    n -= 1
+
+fig, axs = plt.subplots(1, n)
+index = 0
+
 if args.pose:
-    plotOdom.plot_pose(args.encpose, args.filterpose, args.realpose)
+    plotOdom.plot_pose(args.encpose, args.filterpose, args.realpose, axs, index)
+    index += 1
 
 if args.accdist:
-    plotOdom.plot_euclidean(True, args.encreal, args.encfilter, args.filterreal)
+    plotOdom.plot_euclidean(True, args.encreal, args.encfilter, args.filterreal, axs, index)
+    index += 1
 
 if args.dist:
-    plotOdom.plot_euclidean(False, args.encreal, args.encfilter, args.filterreal)
+    plotOdom.plot_euclidean(False, args.encreal, args.encfilter, args.filterreal, axs, index)
+    index += 1
 
-
-# TODO:
-# - plotar tudo na mesma figura no matplotlib
+plt.show()
