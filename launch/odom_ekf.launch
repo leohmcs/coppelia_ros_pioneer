@@ -2,7 +2,7 @@
 <launch>
    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_odom_node" output="screen" >
 
-      <param name="frequency" value="30"/>
+      <param name="frequency" value="10"/>
 
       <param name="sensor_timeout" value="0.1"/>
 
