@@ -32,39 +32,31 @@ class PlotOdom():
         # to the points on odom and odom_filtered list
         self.odom_sim_indices = []
 
-        # we will plot euclidean distance over time
-        self.initial_time = rospy.Time.now()
-        self.time_list = np.array([])
-
 
     # wheel encoder odometry (no filter applied)
     def odom_cb(self, msg):
-        # self.odom_x.append(msg.pose.pose.position.x)
-        # self.odom_y.append(msg.pose.pose.position.y)
         self.odom_x = np.append(self.odom_x, msg.pose.pose.position.x)
         self.odom_y = np.append(self.odom_y, msg.pose.pose.position.y)
 
     
     # odom after fusing wheel encoder and imu data
     def odom_filtered_cb(self, msg):
-        # self.odom_filtered_x.append(msg.pose.pose.position.x)
-        # self.odom_filtered_y.append(msg.pose.pose.position.y)
         self.odom_filtered_x = np.append(self.odom_filtered_x, msg.pose.pose.position.x)
         self.odom_filtered_y = np.append(self.odom_filtered_y, msg.pose.pose.position.y)
-        self.odom_sim_indices.append(len(self.odom_sim_x) - 1)
-        self.time_list = np.append(self.time_list, (rospy.Time.now() - self.initial_time).to_sec()) / 60
-        
+        self.odom_sim_indices.append(len(self.odom_sim_x) - 1)        
+
 
     # real robot position received from simulator
     def odom_sim_cb(self, msg):
-        # self.odom_sim_x.append(msg.position.x)
-        # self.odom_sim_y.append(msg.position.y)
         self.odom_sim_x = np.append(self.odom_sim_x, msg.position.x)
         self.odom_sim_y = np.append(self.odom_sim_y, msg.position.y)
 
 
     # plots robot's pose over time
     def plot_pose(self, enc_pose, filter_pose, sim_pose, axs, i):
+        odom_sim_x = np.take(self.odom_sim_x, self.odom_sim_indices)
+        odom_sim_y = np.take(self.odom_sim_y, self.odom_sim_indices)
+
         if enc_pose:
             axs[i].plot(self.odom_x, self.odom_y, "b--", label="Encoder Pose")
         
@@ -72,7 +64,7 @@ class PlotOdom():
             axs[i].plot(self.odom_filtered_x, self.odom_filtered_y, "r-", label="Filtered Pose")
         
         if sim_pose:
-            axs[i].plot(self.odom_sim_x, self.odom_sim_y, "g-", label="True Pose")
+            axs[i].plot(odom_sim_x, odom_sim_y, "g-", label="True Pose")
         
         axs[i].legend()
         axs[i].set_xlabel("Meters")
@@ -84,7 +76,7 @@ class PlotOdom():
     def plot_euclidean(self, accumulated, enc_sim, enc_filter, filter_sim, axs, i):
         odom_sim_x = np.array([])
         odom_sim_y = np.array([])
-        
+
         if enc_sim or filter_sim:
             odom_sim_x = np.take(self.odom_sim_x, self.odom_sim_indices)
             odom_sim_y = np.take(self.odom_sim_y, self.odom_sim_indices)
