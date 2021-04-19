@@ -13,13 +13,12 @@ function sysCall_init()
         sim.addLog(sim.verbosity_scriptinfos,"ROS interface was found.")
         
         -- local sysTime=sim.getSystemTimeInMs(-1)
-        local robotName='_p3dx' 
-        local leftMotorTopicName='leftMotorSpeed'..robotName -- we add a random component so that we can have several instances of this robot running
-        local rightMotorTopicName='rightMotorSpeed'..robotName -- we add a random component so that we can have several instances of this robot running
-        local simulationTimeTopicName='simTime'..robotName -- we add a random component so that we can have several instances of this robot running
+        local leftMotorTopicName='pioneer/left_wheel_velocity'
+        local rightMotorTopicName='pioneer/right_wheel_velocity'
+        -- local simulationTimeTopicName='simTime'..robotName -- we add a random component so that we can have several instances of this robot running
         
         -- Prepare the motor speed subscribers:
-        simTimePub=simROS.advertise('/'..simulationTimeTopicName,'std_msgs/Float32')
+        -- simTimePub=simROS.advertise('/'..simulationTimeTopicName,'std_msgs/Float32')
         leftMotorSub=simROS.subscribe('/'..leftMotorTopicName,'std_msgs/Float32','setLeftMotorVelocity_cb')
         rightMotorSub=simROS.subscribe('/'..rightMotorTopicName,'std_msgs/Float32','setRightMotorVelocity_cb')
         
@@ -28,7 +27,7 @@ function sysCall_init()
         publishers_motors = {publisher_joints_right, publisher_joints_left}
 
         -- Prepare odom
-        publisher_odom = simROS.advertise('/coppelia_odom', 'nav_msgs/Odometry')
+        -- publisher_odom = simROS.advertise('/coppelia_odom', 'nav_msgs/Odometry')
         last_time = sim.getSimulationTime()
         robot_x = 0.0
         robot_y = 0.0
@@ -172,7 +171,7 @@ function sysCall_actuation()
         pose = {}
         pose['position'] = {x = p[1], y = p[2], z = p[3]}
         pose['orientation']= {x = o[1], y = o[2], z = o[3], w = o[4]}
-        simROS.publish(publisher_gt_pose, pose)
+        -- simROS.publish(publisher_gt_pose, pose)
     end
     
     -- publish joint states of the motor frames

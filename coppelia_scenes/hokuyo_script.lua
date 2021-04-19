@@ -3,7 +3,7 @@ function sysCall_init()
         sim.addLog(sim.verbosity_scriptinfos,"ROS interface was found.")
         
         -- local sysTime=sim.getSystemTimeInMs(-1)
-        local hokuyoTopicName='/pcl_pioneer'
+        local hokuyoTopicName='/points1'
         
         -- Prepare the hokuyo publisher:
         hokuyoPub=simROS.advertise(hokuyoTopicName,'sensor_msgs/PointCloud')
