@@ -23,7 +23,7 @@
 
   <node name="cartographer_node" pkg="cartographer_ros"
       type="cartographer_node" args="
-          -configuration_directory $(find cartographer_ros)/configuration_files
+          -configuration_directory $(find coppelia_ros_pioneer)/configuration_files
           -configuration_basename pioneer_2d.lua"
       output="screen">
     <remap from="echoes" to="horizontal_laser_2d" />
