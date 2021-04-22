@@ -58,17 +58,17 @@ class PlotOdom():
         odom_sim_y = np.take(self.odom_sim_y, self.odom_sim_indices)
 
         if enc_pose:
-            axs[i].plot(self.odom_x, self.odom_y, "b--", label="Encoder Pose")
+            axs[i].plot(self.odom_x, self.odom_y, "b--", label="Giro de Roda")
         
         if filter_pose:
-            axs[i].plot(self.odom_filtered_x, self.odom_filtered_y, "r-", label="Filtered Pose")
+            axs[i].plot(self.odom_filtered_x, self.odom_filtered_y, "r-", label="Giro de Roda + IMU")
         
         if sim_pose:
-            axs[i].plot(odom_sim_x, odom_sim_y, "g-", label="True Pose")
+            axs[i].plot(odom_sim_x, odom_sim_y, "g-", label="Real")
         
         axs[i].legend()
-        axs[i].set_xlabel("Meters")
-        axs[i].set_ylabel("Meters")
+        axs[i].set_xlabel("X (m)")
+        axs[i].set_ylabel("Y (m)")
         axs[i].set_title("Pose")
 
 
@@ -83,28 +83,28 @@ class PlotOdom():
 
         if enc_sim:
             dist_enc_sim = self.calc_dist(accumulated, self.odom_x, self.odom_y, odom_sim_x, odom_sim_y)
-            axs[i].plot(dist_enc_sim, "b--", label="Encoder vs Real")
-            axs[i].set_xlabel("Number of Points Received")
-            axs[i].set_ylabel("Distance (m)")
+            axs[i].plot(dist_enc_sim, "b--", label="Giro de Roda vs Real")
+            axs[i].set_xticks([])
+            axs[i].set_ylabel("Distancia Euclideana (m)")
 
         if enc_filter:
             dist_enc_filter = self.calc_dist(accumulated, self.odom_x, self.odom_y, self.odom_filtered_x, self.odom_filtered_y)
-            axs[i].plot(dist_enc_filter, "r-", label="Encoder vs Filter")
-            axs[i].set_xlabel("Number of Points Received")
-            axs[i].set_ylabel("Distance (m)")
+            axs[i].plot(dist_enc_filter, "r-", label="Giro de Roda vs Giro de Roda + IMU")
+            axs[i].set_xticks([])
+            axs[i].set_ylabel("Distancia Euclideana (m)")
 
         if filter_sim:
             dist_filter_sim = self.calc_dist(accumulated, self.odom_filtered_x, self.odom_filtered_y, odom_sim_x, odom_sim_y)
-            axs[i].plot(dist_filter_sim, "g-", label="Filter vs Real")
-            axs[i].set_xlabel("Number of Points Received")
-            axs[i].set_ylabel("Distance (m)")
+            axs[i].plot(dist_filter_sim, "g-", label="Giro de Roda + IMU vs Real")
+            axs[i].set_xticks([])
+            axs[i].set_ylabel("Distancia Euclideana (m)")
 
         axs[i].legend()
         
         if accumulated:
-            axs[i].set_title("Accumulated Distance")
+            axs[i].set_title("Distancia Acumulada")
         else:
-            axs[i].set_title("Distance")
+            axs[i].set_title("Distancia no Instante")
 
 
     def calc_dist(self, accumulated, x1, y1, x2, y2):
