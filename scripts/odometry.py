@@ -49,6 +49,7 @@ class Robot_Odom:
         self.odom_pub = rospy.Publisher("/odom", Odometry, queue_size=50)
         # self.odom_broadcaster = tf.TransformBroadcaster()
 
+        self.initial_pose_sub = rospy.Subscriber("/pioneer/initial_pose", Pose, self.initial_pose_callback)
         self.right_joint_sub = rospy.Subscriber("/pioneer/right_wheel_joint_state", JointState, self.right_joint_callback)
         self.left_joint_sub = rospy.Subscriber("/pioneer/left_wheel_joint_state", JointState, self.left_joint_callback)
 
@@ -58,7 +59,14 @@ class Robot_Odom:
         self.last_time = rospy.Time.now()
         self.current_time = self.last_time
 
-        
+
+    def initial_pose_callback(self, msg):
+        (_, _, self.th) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+        self.x = msg.position.x
+        self.y = msg.position.y
+        print(self.x, self.y, self.th)
+
+
     def right_joint_callback(self, msg):
         self.right_joint_state = msg
         self.r_wheel_vel = msg.velocity
