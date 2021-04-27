@@ -62,25 +62,25 @@ POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.linear_search_window
 
 POSE_GRAPH.optimization_problem.huber_scale = 1e2
 
-POSE_GRAPH.optimize_every_n_nodes = 100
+POSE_GRAPH.optimize_every_n_nodes = 50
 
 ----- Global SLAM -----
 MAP_BUILDER.num_background_threads = 4 -- Increase up to number of cores
-POSE_GRAPH.global_sampling_ratio = 0.003 -- Decrease
+POSE_GRAPH.global_sampling_ratio = 0.001 -- Decrease
 POSE_GRAPH.constraint_builder.sampling_ratio = 0.4 -- Decrease
 POSE_GRAPH.constraint_builder.min_score = 0.85 -- Increase
 POSE_GRAPH.global_constraint_search_after_n_seconds = 30 -- Increase
-TRAJECTORY_BUILDER_2D.ceres_scan_matcher.ceres_solver_options.max_num_iterations = 5 -- Decrease
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.ceres_solver_options.max_num_iterations = 1 -- Decrease
 
 ----- Global/Local SLAM -----
 TRAJECTORY_BUILDER_2D.adaptive_voxel_filter.min_num_points = 100 -- Decrease
-TRAJECTORY_BUILDER_2D.adaptive_voxel_filter.max_range = 10. -- Decrease
+TRAJECTORY_BUILDER_2D.adaptive_voxel_filter.max_range = 6. -- Decrease
 TRAJECTORY_BUILDER_2D.adaptive_voxel_filter.max_length = 1.0 -- Increase
 TRAJECTORY_BUILDER_2D.loop_closure_adaptive_voxel_filter.min_num_points = 50 -- Decrease
 TRAJECTORY_BUILDER_2D.loop_closure_adaptive_voxel_filter.max_range = 10. -- Decrease
 TRAJECTORY_BUILDER_2D.loop_closure_adaptive_voxel_filter.max_length = 1.8 -- Increase
 TRAJECTORY_BUILDER_2D.voxel_filter_size = 0.05 -- Increase
--- TRAJECTORY_BUILDER_2D.submaps.resolution=0.05 -- Increase
+TRAJECTORY_BUILDER_2D.submaps.grid_options_2d.resolution = 0.1 -- Increase
 TRAJECTORY_BUILDER_2D.submaps.num_range_data = 100 -- Decrease
 TRAJECTORY_BUILDER_2D.max_range = 10. -- Decrease
 
