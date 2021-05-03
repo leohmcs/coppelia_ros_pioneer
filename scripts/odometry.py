@@ -64,7 +64,6 @@ class Robot_Odom:
         (_, _, self.th) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
         self.x = msg.position.x
         self.y = msg.position.y
-        print(self.x, self.y, self.th)
 
 
     def right_joint_callback(self, msg):
@@ -74,7 +73,8 @@ class Robot_Odom:
     
     def left_joint_callback(self, msg):
         self.left_joint_state = msg
-        self.l_wheel_vel = msg.velocity 
+        self.l_wheel_vel = msg.velocity
+        
 
     # calcula a posicao atual do robo
     def pose(self):
