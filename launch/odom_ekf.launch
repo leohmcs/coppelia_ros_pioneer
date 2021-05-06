@@ -1,4 +1,4 @@
-<!-- Odom node (Encoders + IMU) -->
+<?xml version="1.0"?>
 <launch>
    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_odom_node" output="screen" >
 

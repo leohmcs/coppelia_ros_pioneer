@@ -5,8 +5,8 @@ import argparse
 
 from matplotlib import pyplot as plt
 import numpy as np
-import rospy
 
+import rospy
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Pose
 
@@ -16,17 +16,17 @@ class PlotOdom():
         self.odom_x = np.array([0.0])
         self.odom_y = np.array([0.0])
 
-        self.odom_sub = rospy.Subscriber("/odom", Odometry, self.odom_cb)
+        self.odom_sub = rospy.Subscriber("odom", Odometry, self.odom_cb)
 
         self.odom_filtered_x = np.array([0.0])
         self.odom_filtered_y = np.array([0.0])
 
-        self.odom_filtered_sub = rospy.Subscriber("/odometry/filtered", Odometry, self.odom_filtered_cb)
+        self.odom_filtered_sub = rospy.Subscriber("odometry/filtered", Odometry, self.odom_filtered_cb)
 
         self.odom_sim_x = np.array([0.0])
         self.odom_sim_y = np.array([0.0])
 
-        self.odom_sim_sub = rospy.Subscriber("/gt_relative_pose", Pose, self.odom_sim_cb)
+        self.odom_sim_sub = rospy.Subscriber("gt_relative_pose", Pose, self.odom_sim_cb)
 
         # beacuse simulation script runs in higher rate, we need to know which points actually correspond 
         # to the points on odom and odom_filtered list

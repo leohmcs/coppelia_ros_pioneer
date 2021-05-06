@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-import math, sys, argparse, time
+import math, sys, time
 
 import rospy, tf
-
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Point, Twist, Pose, Quaternion, Vector3
+from geometry_msgs.msg import Point, Twist, Pose, Quaternion, Vector3, PointStamped
 
 class TurnAndGo():
     def __init__(self):
@@ -16,7 +15,7 @@ class TurnAndGo():
         # index of next point
         self.n = 0
         
-        self.linear_vel = 0.1 # m/s
+        self.linear_vel = 0.5 # m/s
         self.angular_vel = 0.1 # rad/s
 
         # robot's initial pose
@@ -36,12 +35,14 @@ class TurnAndGo():
         self.limit_time = rospy.Time.now().to_sec()
 
         self.odom_sub = rospy.Subscriber('odometry/filtered', Odometry, self.odom_cb)
-        self.initial_pose_sub = rospy.Subscriber('/pioneer/initial_pose', Pose, self.initial_pose)
+        self.initial_pose_sub = rospy.Subscriber('pioneer/initial_pose', Pose, self.initial_pose)
         self.vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+        self.points_pub = rospy.Publisher('points', PointStamped, queue_size=10)
 
 
     def initial_pose(self, msg):
         (_, _, self.initial_th) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+        print("Rotated %s degrees", self.initial_th * (180 / math.pi))
         self.initial_x = msg.position.x
         self.initial_y = msg.position.y
         self.initial_pose_ok = True
@@ -61,9 +62,9 @@ class TurnAndGo():
 
         for i in range(0, len(self.abs_points), 2):
             abs_p = [self.abs_points[i].x, self.abs_points[i].y]
-            rel_p = [abs_p[0] - self.initial_x, abs_p[1] - self.initial_y] 
-            rel_p = [rel_p[0] * math.cos(self.initial_th) - rel_p[1] * math.sin(self.initial_th),
-                     rel_p[0] * math.sin(self.initial_th) + rel_p[1] * math.cos(self.initial_th)]
+            rel_p = [abs_p[0] * math.cos(self.initial_th) - abs_p[1] * math.sin(self.initial_th),
+                     abs_p[0] * math.sin(self.initial_th) + abs_p[1] * math.cos(self.initial_th)]
+            rel_p = [rel_p[0] - self.initial_x, rel_p[1] - self.initial_y] 
 
             rel_points.append(Point(rel_p[0], rel_p[1], 0.0))
 
@@ -94,9 +95,17 @@ class TurnAndGo():
             self.stop()
 
         # rospy.loginfo("Going to (%s, %s)", next_point.x + self.initial_x, next_point.y + self.initial_y)
+        point_msg = PointStamped()
+        point_msg.header.stamp = rospy.Time.now()
+        point_msg.header.frame_id = "odom"
+        point_msg.point.x = next_point.x + self.initial_x
+        point_msg.point.y = next_point.y + self.initial_y
+        point_msg.point.z = 0.0
+
+        self.points_pub.publish(point_msg)
 
         position_error = self.distance(current_position, next_point)
-        # rospy.loginfo("Position error: %s", position_error)
+        rospy.loginfo("Position error: %s", position_error)
         
         if position_error > 0.05:
             self.target_angle = self.angle(current_position, next_point)
@@ -116,7 +125,7 @@ class TurnAndGo():
 
 
     def turn(self, velocity):
-        rospy.loginfo("Turning")
+        # rospy.loginfo("Turning")
         vel_msg = Twist(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, velocity))
         self.vel_pub.publish(vel_msg)
 
@@ -124,7 +133,7 @@ class TurnAndGo():
         
     
     def go(self):
-        rospy.loginfo("Going")
+        # rospy.loginfo("Going")
         vel_msg = Twist(Vector3(self.linear_vel, 0.0, 0.0), Vector3(0.0, 0.0, 0.0))
         self.vel_pub.publish(vel_msg)
 
@@ -133,20 +142,16 @@ class TurnAndGo():
         self.vel_pub.publish(Twist(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 0.0))) 
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-p", "--points", nargs="+", type=float, help="Points to follow: x1, y1, x2, y2...")
-args = parser.parse_args()
-
 rospy.init_node('turn_and_go')
 rospy.loginfo('turn_and_go node initialization')
 
 turn_and_go = TurnAndGo()
 while not turn_and_go.initial_pose_ok:
     rospy.loginfo("Waiting for initial pose.")
+    time.sleep(1)
 
-for _, value in args._get_kwargs():
-    if value is not None:
-        turn_and_go.abs_points = value
+for i in rospy.get_param("~points").split():
+    turn_and_go.abs_points.append(float(i))
 
 if not turn_and_go.abs_points:
     rospy.logfatal("No points provided. Shutting down")

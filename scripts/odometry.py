@@ -3,11 +3,7 @@
 import math
 from math import sin, cos, pi
 
-# import os
-# os.environ["ROS_NAMESPACES"] = "/coppelia_ros_pioneer"
-
-import rospy
-import tf
+import rospy, tf
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 from std_msgs.msg import Float32
@@ -46,12 +42,12 @@ class Robot_Odom:
         self.delta_s = 0.0
         self.delta_th = 0.0
 
-        self.odom_pub = rospy.Publisher("/odom", Odometry, queue_size=50)
+        self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=50)
         # self.odom_broadcaster = tf.TransformBroadcaster()
 
-        self.initial_pose_sub = rospy.Subscriber("/pioneer/initial_pose", Pose, self.initial_pose_callback)
-        self.right_joint_sub = rospy.Subscriber("/pioneer/right_wheel_joint_state", JointState, self.right_joint_callback)
-        self.left_joint_sub = rospy.Subscriber("/pioneer/left_wheel_joint_state", JointState, self.left_joint_callback)
+        self.initial_pose_sub = rospy.Subscriber("pioneer/initial_pose", Pose, self.initial_pose_callback)
+        self.right_joint_sub = rospy.Subscriber("pioneer/right_wheel_joint_state", JointState, self.right_joint_callback)
+        self.left_joint_sub = rospy.Subscriber("pioneer/left_wheel_joint_state", JointState, self.left_joint_callback)
 
         self.right_joint_state = JointState()
         self.left_joint_state = JointState()
