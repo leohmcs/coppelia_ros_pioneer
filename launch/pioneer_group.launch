@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+	<group ns="pioneer_1" >
+		<include file="$(find coppelia_ros_pioneer)/launch/pioneer.launch" >
+			<arg name="pts" value="0.0 1.0 2.0 3.5 4.5 8.0 -2.0 -3.0" />
+		</include>
+	</group>
+
+	<group ns="pioneer_2" >
+		<include file="$(find coppelia_ros_pioneer)/launch/pioneer.launch" >
+			<arg name="pts" value="0.0 1.0 2.0 3.5 4.5 8.0 -2.0 -3.0" />
+		</include>
+	</group>
+</launch>
