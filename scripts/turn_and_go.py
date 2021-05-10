@@ -90,16 +90,16 @@ class TurnAndGo():
     def navigate(self):
         current_position = Point(self.x, self.y, 0.0)
         try:
-            next_point = self.rel_points[self.n]
+            next_point = self.abs_points[self.n]
         except(IndexError):
             self.stop()
 
-        # rospy.loginfo("Going to (%s, %s)", next_point.x + self.initial_x, next_point.y + self.initial_y)
+        # rospy.loginfo("Going to (%s, %s)", next_point.x, next_point.y)
         point_msg = PointStamped()
         point_msg.header.stamp = rospy.Time.now()
         point_msg.header.frame_id = "odom"
-        point_msg.point.x = next_point.x + self.initial_x
-        point_msg.point.y = next_point.y + self.initial_y
+        point_msg.point.x = next_point.x
+        point_msg.point.y = next_point.y
         point_msg.point.z = 0.0
 
         self.points_pub.publish(point_msg)
@@ -152,6 +152,8 @@ while not turn_and_go.initial_pose_ok:
 
 for i in rospy.get_param("~points").split():
     turn_and_go.abs_points.append(float(i))
+    
+print(turn_and_go.abs_points)
 
 if not turn_and_go.abs_points:
     rospy.logfatal("No points provided. Shutting down")
@@ -164,16 +166,13 @@ elif len(turn_and_go.abs_points) % 2 != 0:
 else:
     # make [x1, y1, x2, y2, ...] into [Point(x1, y1, 0.0), Point(x2, y2, 0.0), ...] 
     for i in range(0, len(turn_and_go.abs_points), 2):
-        turn_and_go.abs_points[i] = Point(turn_and_go.abs_points[i], turn_and_go.abs_points[i + 1], 0.0)
-
-    turn_and_go.rel_points = turn_and_go.abs_to_rel_points(turn_and_go.abs_points)
+        turn_and_go.abs_points[i/2] = Point(turn_and_go.abs_points[i], turn_and_go.abs_points[i + 1], 0.0)
 
 rospy.loginfo("Points: %s", turn_and_go.abs_points)
-rospy.loginfo("Relative Points: %s", turn_and_go.rel_points)
 
 rate = rospy.Rate(10.0)
 while not rospy.is_shutdown():
-    if turn_and_go.n >= len(turn_and_go.rel_points):
+    if turn_and_go.n >= len(turn_and_go.abs_points):
         turn_and_go.stop()
         rospy.loginfo("Finished")
         break

@@ -13,20 +13,20 @@ from geometry_msgs.msg import Pose
 
 class PlotOdom():
     def __init__(self):
-        self.odom_x = np.array([0.0])
-        self.odom_y = np.array([0.0])
+        self.odom_x = np.array([])
+        self.odom_y = np.array([])
 
         self.odom_sub = rospy.Subscriber("odom", Odometry, self.odom_cb)
 
-        self.odom_filtered_x = np.array([0.0])
-        self.odom_filtered_y = np.array([0.0])
+        self.odom_filtered_x = np.array([])
+        self.odom_filtered_y = np.array([])
 
         self.odom_filtered_sub = rospy.Subscriber("odometry/filtered", Odometry, self.odom_filtered_cb)
 
-        self.odom_sim_x = np.array([0.0])
-        self.odom_sim_y = np.array([0.0])
+        self.odom_sim_x = np.array([])
+        self.odom_sim_y = np.array([])
 
-        self.odom_sim_sub = rospy.Subscriber("gt_relative_pose", Pose, self.odom_sim_cb)
+        self.odom_sim_sub = rospy.Subscriber("gt_pose", Pose, self.odom_sim_cb)
 
         # beacuse simulation script runs in higher rate, we need to know which points actually correspond 
         # to the points on odom and odom_filtered list
@@ -141,7 +141,7 @@ args = parser.parse_args()
 
 # ROS
 rospy.init_node('odometry_plot')
-rospy.loginfo('Plot odom node initialization. The graph will be shown once this node is killed')
+rospy.loginfo('Plot odom node initialization. The graph will be shown once this node is shutdown')
 
 plotOdom = PlotOdom()
 

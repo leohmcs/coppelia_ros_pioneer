@@ -1,19 +1,23 @@
 #!/usr/bin/env python
 
-import math
+import math, time
 from math import sin, cos, pi
 
 import rospy, tf
+
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 from std_msgs.msg import Float32
 from sensor_msgs.msg import JointState
+
+from std_srvs.srv import Empty
 
 
 class Robot_Odom:
     def __init__(self):
         self.w_radius = 0.0975
         self.w_base = 0.4150
+        self.initial_pose_ok = False
 
         # assumindo que o robo inicia parado na origem
         self.r_wheel_vel = (0.0,)
@@ -49,6 +53,8 @@ class Robot_Odom:
         self.right_joint_sub = rospy.Subscriber("pioneer/right_wheel_joint_state", JointState, self.right_joint_callback)
         self.left_joint_sub = rospy.Subscriber("pioneer/left_wheel_joint_state", JointState, self.left_joint_callback)
 
+        self.enable_filter = rospy.ServiceProxy('ekf_odom_node/enable', Empty)
+
         self.right_joint_state = JointState()
         self.left_joint_state = JointState()
 
@@ -60,6 +66,8 @@ class Robot_Odom:
         (_, _, self.th) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
         self.x = msg.position.x
         self.y = msg.position.y
+        rospy.set_param("ekf_odom_node/initial_state", [self.x, self.y, 0.0, 0.0, 0.0, self.th, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        self.initial_pose_ok = True
 
 
     def right_joint_callback(self, msg):
@@ -181,6 +189,13 @@ rospy.init_node('odometry_publisher')
 rospy.loginfo("odometry_publisher node initialization") 
 
 odom = Robot_Odom()
+while not odom.initial_pose_ok:
+    rospy.loginfo("Waiting for initial pose.")
+    time.sleep(1)
+
+odom.enable_filter()
+
+rospy.loginfo("Odometry filter enabled.")
 
 rate = rospy.Rate(10.0)
 while not rospy.is_shutdown():
