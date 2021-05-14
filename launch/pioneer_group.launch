@@ -2,20 +2,25 @@
 <launch>
 <!-- Template 
 	<group ns="pioneer_[robot_id]" >
+		<param name="tf_prefix" value="pioneer_[robot_id]" />
 		<include file="$(find coppelia_ros_pioneer)/launch/pioneer.launch" >
 			<arg name="pts" value="x1, y1, x2, y2, ..., xn, yn" />
 		</include>
 	</group>
 -->
-	<group ns="pioneer_1" >
+	<group ns="pioneer1" >
+		<param name="tf_prefix" value="pioneer1_tf" />
 		<include file="$(find coppelia_ros_pioneer)/launch/pioneer.launch" >
 			<arg name="pts" value="0.0 1.0 2.0 3.5 4.5 8.0 -2.0 -3.0" />
 		</include>
+		<node pkg="tf2_ros" type="static_transform_publisher" name="map_to_pioneer2_odom" args="0 0 0 0 0 0 map pioneer1_tf/odom" />
 	</group>
 
-	<group ns="pioneer_2" >
+	<group ns="pioneer2" >
+		<param name="tf_prefix" value="pioneer2_tf" />
 		<include file="$(find coppelia_ros_pioneer)/launch/pioneer.launch" >
-			<arg name="pts" value="0.0 1.0 2.0 3.5 4.5 8.0 -2.0 -3.0" />
+			<arg name="pts" value="1.0 0.0 3.5 2.0 4.5 -2.0 -3.0 8.0" />
 		</include>
+		<node pkg="tf2_ros" type="static_transform_publisher" name="map_to_pioneer2_odom" args="0 0 0 0 0 0 map pioneer2_tf/odom" />
 	</group>
 </launch>
