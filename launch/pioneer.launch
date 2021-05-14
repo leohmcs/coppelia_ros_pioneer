@@ -1,19 +1,25 @@
 <?xml version="1.0"?>
 <launch>
-   <!-- <arg name="pts" /> -->
+   <arg name="pts" />
 
    <node name="wheel_vel" pkg="coppelia_ros_pioneer" type="wheel_velocity.py" respawn="true" output="screen" />
    
    <node name="odom" pkg="coppelia_ros_pioneer" type="odometry.py" respawn="true" output="screen" />
    
-   <node pkg="tf2_ros" type="static_transform_publisher" name="imu_to_robot_base" args="0 0 0 0 0 0 base_link imu_link" />
-   <!-- <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 map odom 20" /> -->
-   
-   <!-- Comment/Uncomment if you don't/do want to run TurnAndGo -->
-   <!-- <node name="turn_and_go" pkg="coppelia_ros_pioneer" type="turn_and_go.py" respawn="true" output="screen" >
-      <param name="points" value="$(arg pts)" />
-   </node> -->
+   <!-- TF -->
+   <arg name="model" default="$(find p3dx_description)/urdf/pioneer3dx.urdf"/>
+   <arg name="gui" default="False" />
+   <param name="robot_description" textfile="$(arg model)" />
+   <param name="use_gui" value="$(arg gui)"/>
+   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
+   <!-- Comment/Uncomment if you don't/do want to run TurnAndGo -->
+   <node name="turn_and_go" pkg="coppelia_ros_pioneer" type="turn_and_go.py" respawn="true" output="screen" >
+      <param name="points" value="$(arg pts)" />
+   </node>
+
+   <!-- Convert PointCloud (published by Hokuyo on CoppeliaSim) to PointCloud2 (used in SLAM)-->
    <node name="point_cloud_converter" pkg="point_cloud_converter" type="point_cloud_converter_node" respawn="true" output="screen">
       <remap from="points_in" to="points1" />
       <remap from="points2_out" to="points2" />
@@ -27,9 +33,9 @@
 
       <param name="map_frame" value="map"/>
       <param name="odom_frame" value="odom"/>
-      <param name="publish_tf" value="true"/>
       <param name="base_link_frame" value="base_link"/>
       <param name="world_frame" value="odom"/>
+      <param name="publish_tf" value="true"/>
       <param name="transform_time_offset" value="0.0"/>
 
       <param name="odom0" value="odom"/>
