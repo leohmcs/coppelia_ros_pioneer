@@ -8,6 +8,8 @@ from geometry_msgs.msg import Point, Twist, Pose, Quaternion, Vector3, PointStam
 
 class TurnAndGo():
     def __init__(self):
+        self.TF_PREFIX = ""
+
         # points to follow
         self.abs_points = []
         self.rel_points = []
@@ -97,7 +99,7 @@ class TurnAndGo():
         # rospy.loginfo("Going to (%s, %s)", next_point.x, next_point.y)
         point_msg = PointStamped()
         point_msg.header.stamp = rospy.Time.now()
-        point_msg.header.frame_id = "odom"
+        point_msg.header.frame_id = self.TF_PREFIX + "odom"
         point_msg.point.x = next_point.x
         point_msg.point.y = next_point.y
         point_msg.point.z = 0.0
@@ -146,15 +148,17 @@ rospy.init_node('turn_and_go')
 rospy.loginfo('turn_and_go node initialization')
 
 turn_and_go = TurnAndGo()
-while not turn_and_go.initial_pose_ok:
-    rospy.loginfo("Waiting for initial pose.")
-    time.sleep(1)
+if rospy.has_param("tf_prefix"):
+    turn_and_go.TF_PREFIX = rospy.get_param("tf_prefix") + "/"
 
+# Initial config: reading the points to follow #
+# Read parameter value
 for i in rospy.get_param("~points").split():
     turn_and_go.abs_points.append(float(i))
-    
-print(turn_and_go.abs_points)
 
+# print(turn_and_go.abs_points) -> useful for debugging
+
+# Error check
 if not turn_and_go.abs_points:
     rospy.logfatal("No points provided. Shutting down")
     time.sleep(1)
@@ -170,8 +174,15 @@ else:
 
 rospy.loginfo("Points: %s", turn_and_go.abs_points)
 
+# End initial config #
+
 rate = rospy.Rate(10.0)
 while not rospy.is_shutdown():
+    if not turn_and_go.initial_pose_ok:
+        rospy.loginfo("Waiting for initial pose.")
+        time.sleep(1)
+        continue
+    
     if turn_and_go.n >= len(turn_and_go.abs_points):
         turn_and_go.stop()
         rospy.loginfo("Finished")

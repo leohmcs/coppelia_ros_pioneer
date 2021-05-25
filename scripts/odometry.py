@@ -15,6 +15,8 @@ from std_srvs.srv import Empty
 
 class Robot_Odom:
     def __init__(self):
+        self.TF_PREFIX = ""
+
         self.w_radius = 0.0975
         self.w_base = 0.4150
         self.initial_pose_ok = False
@@ -68,6 +70,8 @@ class Robot_Odom:
         self.y = msg.position.y
         rospy.set_param("ekf_odom_node/initial_state", [self.x, self.y, 0.0, 0.0, 0.0, self.th, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         self.initial_pose_ok = True
+        odom.enable_filter()
+        rospy.loginfo("Odometry filter enabled.")
 
 
     def right_joint_callback(self, msg):
@@ -173,13 +177,13 @@ class Robot_Odom:
 
         odom = Odometry()
         odom.header.stamp = rospy.Time.now()
-        odom.header.frame_id = "odom"
+        odom.header.frame_id = self.TF_PREFIX + "odom"
 
-        odom.pose.pose = Pose(Point(self.x, self.y, 0.), Quaternion(*odom_quat))
+        odom.pose.pose = Pose(Point(self.x, self.y, 0.0), Quaternion(*odom_quat))
         odom.pose.covariance = self.pose_covariance
 
-        odom.child_frame_id = "base_link"
-        odom.twist.twist = Twist(Vector3(self.vel_linear, 0, 0), Vector3(0, 0, self.vel_angular))
+        odom.child_frame_id = self.TF_PREFIX + "base_link"
+        odom.twist.twist = Twist(Vector3(self.vel_linear, 0.0, 0.0), Vector3(0.0, 0.0, self.vel_angular))
         odom.twist.covariance = self.twist_covariance
 
         self.odom_pub.publish(odom)
@@ -189,15 +193,15 @@ rospy.init_node('odometry_publisher')
 rospy.loginfo("odometry_publisher node initialization") 
 
 odom = Robot_Odom()
-while not odom.initial_pose_ok:
-    rospy.loginfo("Waiting for initial pose.")
-    time.sleep(1)
-
-odom.enable_filter()
-
-rospy.loginfo("Odometry filter enabled.")
+if rospy.has_param("tf_prefix"):
+    odom.TF_PREFIX = rospy.get_param("tf_prefix") + "/"
 
 rate = rospy.Rate(10.0)
 while not rospy.is_shutdown():
+    if not odom.initial_pose_ok:
+        rospy.loginfo("Waiting for initial pose.")
+        time.sleep(1)
+        continue
+
     odom.pose()
     rate.sleep()
