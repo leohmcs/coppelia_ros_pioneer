@@ -14,6 +14,7 @@
 			<arg name="pts" value="0.0 1.0 2.0 3.5 4.5 8.0 -2.0 -3.0" />
 		</include>
 		<node pkg="tf2_ros" type="static_transform_publisher" name="map_to_pioneer2_odom" args="0 0 0 0 0 0 map pioneer1_tf/odom" />
+		
 	</group>
 
 	<group ns="pioneer2" >
