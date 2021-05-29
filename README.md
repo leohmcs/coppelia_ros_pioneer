@@ -2,112 +2,59 @@
 Tested on Ubuntu 18.04 and Coppelia 4.1.0.
 
 ## Prerequesites
-### Minimum
-Simulator, CoppeliaSim: https://www.coppeliarobotics.com/downloads
+This package relies on some other packages and dependencies to work properly and do SLAM.
 
-Kalman Filter to fuse IMU data, robot_localization package: https://github.com/cra-ros-pkg/robot_localization
+### CoppeliaSim
+This will only work on CoppeliaSim. We included the scenes we used for testing. To use your own scenes, you need to copy the pioneer model to your scene.
+https://www.coppeliarobotics.com/downloads
 
-Convert PointCloud data from CoppeliaSim to PointCloud2: https://github.com/pal-robotics-forks/point_cloud_converter
+### robot_localization package
+Kalman Filter to fuse IMU data. https://github.com/cra-ros-pkg/robot_localization 
 
-Cartographer ROS, used for SLAM: https://google-cartographer-ros.readthedocs.io/en/latest/compilation.html
+### Convert PointCloud PointCloud2
+The Hokuyo laser used in CoppeliaSim publishes data in PointCloud format. We use this package to convert to PointCloud2 (actually, it's a fork with a small modification). https://github.com/leohmcs/point_cloud_converter
 
-ConvertPointCloud2 to LaserScan: https://github.com/ros-perception/pointcloud_to_laserscan (you can also use PointCloud2 directly on Cartographer, if you wish).
+### Cartographer ROS, used for SLAM
+This package includes files to configure and launch Cartographer for 2D SLAM. The instructions to run it are below. Of course, if you want to use it, you need to install Cartographer first. https://google-cartographer-ros.readthedocs.io/en/latest/compilation.html
 
-Finally, Robot Model to show in RViz: https://github.com/mario-serna/pioneer_p3dx_model/tree/master/p3dx_description/urdf
+### Convert PointCloud2 to LaserScan
+We configured Cartographer to use LaserScan data for mapping. https://github.com/ros-perception/pointcloud_to_laserscan
 
-## 1) To run
-Clone and build the repository in your workspace
+### Robot Model to show in RViz
+To make the visualization more exciting, you can display this model on RViz. It is a fork with a small modification to include the IMU. https://github.com/leohmcs/p3dx
 
-```
-# In the first level of your workspace
-git clone git@github.com:leohmcs/coppelia_ros_pioneer.git
-catkin build
-```
+## Overview
+This package provides components to give basically functionalities to a Pioneer3dx simulated in CoppeliaSim. It provides the robot odometry (wheel encoder + IMU), the possibility to control the robot using your keyboard and the data from a Hokuyo scan, which we use for SLAM. It also provides a simple TurnAndGo algorithm, so you can give points for the robot to follow.
 
-Launch the odometry and wheel_velocity nodes
+You can also run two instances of the Pioneer simultaneously, both for mapping and TurnAndGo. 
 
-```
-roslaunch coppelia_ros_pioneer pioneer.launch
-```
+## Mapping
+As mentioned before, we use Cartographer for SLAM.
 
-This will run odometry.py, which calculates odometry based on wheel encoder, wheel_velocity.py, which calculates each wheel velocity based on Twist messages received from /cmd_vel (published by teleop node).
-
-```
-roslaunch coppelia_ros_pioneer odom_ekf.launch
-```
-
-This will setup and run [robot_localization](http://wiki.ros.org/robot_localization)'s ekf_localization_node to fuse imu and wheel encoder odometry data to improve odometry precision. This node also publishes odom -> base_link tf.
-
-Run teleop to move the robot using your keyboard. The source code can be found at [https://github.com/ros-teleop/teleop_twist_keyboard](https://github.com/ros-teleop/teleop_twist_keyboard)
+### One robot
+Load the scene `ros_pioneer.ttt`, included in `coppelia_scenes` directory of this package, into CoppeliaSim. This scene has the robot in a medium sized scenario, which makes an insteresting map. Once the scene is loaded, start the simulation and run
 
 ```
-# If you don't have the package insalled, clone the repository to your workspace and build
-git clone git@github.com:ros-teleop/teleop_twist_keyboard.git
-catkin build
-
-# To run teleop node
-rosrun teleop_twist_keyboard teleop_twist_keyboard.py
-``` 
-
-Refer to the [repository](https://github.com/ros-teleop/teleop_twist_keyboard) for more information and usage instructions.
-
-## 2) RViz
-The model used on RViz is [https://github.com/mario-serna/pioneer_p3dx_model](https://github.com/mario-serna/pioneer_p3dx_model)
-
-To install
-
-```
-git clone git@github.com:mario-serna/pioneer_p3dx_model.git
-catkin build
+roslaunch coppelia_ros_pioneer pioneer_2d.launch
 ```
 
-To use
-
-```
-roslaunch p3dx_description rviz.launch
-```
-## 3) Cartographer
-### Installation
-I recommend following the official tutorial to install Cartographer ROS.
-https://google-cartographer-ros.readthedocs.io/en/latest/compilation.html
-
-### One Robot
-Once you have installed Cartographer, you will need two files to run Cartographer SLAM: `pioneer_2d.lua` and `pioneer_2d.launch`. The first one configures some parameters, such as wether Cartographer will be responsible for publishing Odom frame or not. These are the parameters you will change to tune the mapping. The second one launchs RViz for visualization.
-
-```
-roslaunch coppelia_ros_pioneer pioneer_2d.lua
-```
-
-This command should work. If it doesn't, copy the files to Cartographer respective directories.
-
-```
-# Assuming you have installed coppelia_ros_pioneer and cartographer_ros (following the recommended tutorial) packages in a workspace called workspace.
-cp ~/workspace/src/coppelia_ros_pioneer/launch/pioneer_2d.launch ~/workspace/install_isolated/share/cartographer_ros/launch/
-cp ~/workspace/src/coppelia_ros_pioneer/configuration_files/pioneer_2d.lua ~/workspace/install_isolated/share/cartographer_ros/configuration_files/
-```
-
-And then run
-
-```
-source ~/workspace/install_isolated/setup.bash  # use setup.zsh if your shell is zsh
-roslaunch cartographer_ros pioneer_2d.launch
-```
-### Two Robots
+(of course, ROS Master must be running)
 
 ## TurnAndGo
-A simple "turn and go" algorithm was recently added to the package. It was tested up to two robots running simultaneously, although it may work for more with a few changes on the launch file (basically, add more `<group>` and `namespaces`).
-
-### One Robot
-With odometry properly running (see Section 1), you just need to add the points you want the robot to follow as an argument (`arg pts`) in the `pioneer.launch` file. Then run
+### One robot
+The simulator is optional here. You can use the same robot model used for SLAM. In this case, RViz provides a great visualization. To run the algorithm, uncomment the indicated lines in `pioneer.launch`. Then run
 
 ```
 roslaunch coppelia_ros_pioneer pioneer.launch
 ```
 
-### Two Robots
-In order to run "turn_and_go" simultaneously for two robots, each one following a different list of points, run
+The points are set as an `arg` in the same file.
+
+### Two robots
+To run for two robots, you also need to uncomment the indicated lines in `pioneer.launch`. Then run
 
 ```
 roslaunch coppelia_ros_pioneer pioneer_turn_and_go_group.launch
 ```
- There is a template in the same file (`pioneer_turn_and_go_group.launch`) to configure each robot, i.e. set namespaces, tf_prefix and the list of points.
+
+The points are set as an `arg` in the same file (`pioneer_turn_and_go_group.launch`).
