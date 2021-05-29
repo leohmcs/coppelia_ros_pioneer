@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-   <!-- <arg name="pts" default="0.0 1.0 2.0 3.5 4.5 8.0 -2.0 -3.0" /> -->
-
    <node name="wheel_vel" pkg="coppelia_ros_pioneer" type="wheel_velocity.py" respawn="true" output="screen" />
    
    <node name="odom" pkg="coppelia_ros_pioneer" type="odometry.py" respawn="true" output="screen" />
@@ -13,11 +11,6 @@
    <param name="use_gui" value="$(arg gui)"/>
    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-
-   <!-- Comment/Uncomment if you don't/do want to run TurnAndGo -->
-   <!-- <node name="turn_and_go" pkg="coppelia_ros_pioneer" type="turn_and_go.py" respawn="true" output="screen" >
-      <param name="points" value="$(arg pts)" />
-   </node> -->
 
    <!-- Convert PointCloud (published by Hokuyo on CoppeliaSim) to PointCloud2 (used in SLAM)-->
    <node name="point_cloud_converter" pkg="point_cloud_converter" type="point_cloud_converter_node" respawn="true" output="screen">

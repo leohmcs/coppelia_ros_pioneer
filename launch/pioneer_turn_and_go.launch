@@ -1,0 +1,8 @@
+<launch>
+   <!-- points are read as x1, y1, x2, y2, ..., xn, yn -->
+   <arg name="pts" default="0.0 1.0 2.0 3.5 4.5 8.0 -2.0 -3.0" />
+   
+   <node name="turn_and_go" pkg="coppelia_ros_pioneer" type="turn_and_go.py" respawn="true" output="screen" >
+      <param name="points" value="$(arg pts)" />
+   </node>
+<launch>
