@@ -1,4 +1,0 @@
-<launch>
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find coppelia_ros_pioneer)/rviz/config.rviz" />
-  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find coppelia_ros_pioneer)/rviz/config-single.rviz" /> -->
-</launch>
