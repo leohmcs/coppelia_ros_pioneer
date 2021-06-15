@@ -37,8 +37,14 @@ Load the scene `ros_pioneer.ttt`, included in `coppelia_scenes` directory of thi
 ```
 roslaunch coppelia_ros_pioneer pioneer_2d.launch
 ```
+### Two robots
+You can also use `ros_pioneer.ttt`, but you will have to remove the Pioneer that is there by default and add the models from `coppelia_scenes/two_robots` directory. Once the scene is loaded and you added the models, run
 
-(of course, ROS Master must be running)
+```
+roslaunch coppelia_ros_pioneer pioneer_map_group.launch
+```
+
+(of course, ROS Master must be running in both cases)
 
 ## TurnAndGo
 ### One robot
@@ -50,11 +56,23 @@ roslaunch coppelia_ros_pioneer pioneer.launch
 
 The points are set as an `arg` in the same file.
 
+To visualize in RViz
+
+```
+roslaunch coppelia_ros_pioneer turn_and_go_single.rviz
+```
+
 ### Two robots
 To run for two robots, you also need to uncomment the indicated lines in `pioneer.launch`. Then run
 
 ```
-roslaunch coppelia_ros_pioneer pioneer_turn_and_go_group.launch
+roslaunch coppelia_ros_pioneer rviz_turn_and_go_single.launch
 ```
 
 The points are set as an `arg` in the same file (`pioneer_turn_and_go_group.launch`).
+
+To visualize in RViz
+
+```
+roslaunch coppelia_ros_pioneer rviz_turn_and_go_two.launch
+```
