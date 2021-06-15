@@ -1,0 +1,22 @@
+<launch>
+    <!-- Cartographer -->
+    <include file="$(find coppelia_ros_pioneer)/launch/pioneer_2d.launch" />
+
+    <node name="controle" pkg="controle" type="controle" respawn="true" > <!-- output="screen"-->
+        <remap from="base_pose_ground_truth" to="coppelia_odom" />
+        <remap from="cmd_vel_mux/input/navi" to="cmd_vel" />
+        <remap from="map_metadata" to="map" />
+    </node> 
+
+    <node name="analiseFronteiras" pkg="imagem" type="analiseFronteiras" output="screen" respawn="true" >
+        <remap from="base_pose_ground_truth" to="coppelia_odom" />
+    </node>
+    <node name="drawNear" pkg="imagem" type="drawNear" output="screen" respawn="true" > <!-- output="screen"-->
+        <remap from="base_pose_ground_truth" to="coppelia_odom" />
+    </node>
+
+    <node name="algoritmoRRT" pkg="near_frontier" type="algoritmoRRT" respawn="true" > <!-- output="screen" > -->
+        <remap from="base_pose_ground_truth" to="coppelia_odom" />
+        <remap from="map_metadata" to="map" />
+    </node>
+</launch>
